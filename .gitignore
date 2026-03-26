@@ -6,6 +6,9 @@
 # dotenv files
 .env
 
+# Seed data
+SeedData.cs
+
 # User-specific files
 *.rsuser
 *.suo
