@@ -1,0 +1,24 @@
+@page "/example/{greeting?}"
+@rendermode InteractiveServer
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+
+
+<h1>Example Page</h1>
+<p>@Message</p>
+<p>Welcome, dear @Greeting</p>
+
+<Counter count="100"></Counter>
+<Counter count="30"></Counter>
+
+@code {
+    [Parameter] public string? Greeting { get; set; }
+    private string Message { get; set; } = "Hello, Blazor!";
+
+    private int count = 0;
+
+    private void Increment()
+    {
+        count++;
+    }
+}
+

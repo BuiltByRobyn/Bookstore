@@ -1,0 +1,42 @@
+@page "/books"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@implements IAsyncDisposable
+@inject IDbContextFactory<BookstoreDb> DbFactory
+
+<PageTitle>Index</PageTitle>
+
+<h1>Index</h1>
+
+<p>
+    <a href="books/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="context.Books">
+    <PropertyColumn Property="book => book.Title" />
+    <PropertyColumn Property="book => book.CoverImageUrl" />
+    <PropertyColumn Property="book => book.Author" />
+    <PropertyColumn Property="book => book.Genre" />
+    <PropertyColumn Property="book => book.Publisher" />
+    <PropertyColumn Property="book => book.PublicationYear" />
+    <PropertyColumn Property="book => book.Language" />
+    <PropertyColumn Property="book => book.PageCount" />
+    <PropertyColumn Property="book => book.Price" />
+
+    <TemplateColumn Context="book">
+        <a href="@($"books/edit?id={book.Id}")">Edit</a> |
+        <a href="@($"books/details?id={book.Id}")">Details</a> |
+        <a href="@($"books/delete?id={book.Id}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>
+
+@code {
+    private BookstoreDb context = default!;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}

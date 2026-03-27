@@ -1,0 +1,61 @@
+@page "/books/details"
+@using Microsoft.EntityFrameworkCore
+@inject IDbContextFactory<BookstoreDb> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>Book</h2>
+    <hr />
+    @if (book is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">Title</dt>
+            <dd class="col-sm-10">@book.Title</dd>
+            <dt class="col-sm-2">CoverImageUrl</dt>
+            <dd class="col-sm-10">@book.CoverImageUrl</dd>
+            <dt class="col-sm-2">Author</dt>
+            <dd class="col-sm-10">@book.Author</dd>
+            <dt class="col-sm-2">Genre</dt>
+            <dd class="col-sm-10">@book.Genre</dd>
+            <dt class="col-sm-2">Publisher</dt>
+            <dd class="col-sm-10">@book.Publisher</dd>
+            <dt class="col-sm-2">PublicationYear</dt>
+            <dd class="col-sm-10">@book.PublicationYear</dd>
+            <dt class="col-sm-2">Language</dt>
+            <dd class="col-sm-10">@book.Language</dd>
+            <dt class="col-sm-2">PageCount</dt>
+            <dd class="col-sm-10">@book.PageCount</dd>
+            <dt class="col-sm-2">Price</dt>
+            <dd class="col-sm-10">@book.Price</dd>
+        </dl>
+        <div>
+            <a href="@($"/books/edit?id={book.Id}")">Edit</a> |
+            <a href="@($"/books")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private Book? book;
+
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        book = await context.Books.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (book is null)
+        {
+            NavigationManager.NotFound();
+        }
+    }
+}

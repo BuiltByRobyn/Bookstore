@@ -18,3 +18,17 @@
         right: 0.75rem;
         top: 0.5rem;
     }
+
+    .page {
+        display: flex;
+        flex-direction: column;
+        width: 80%;
+        margin: 0 auto;
+        min-height: 100vh;
+    }
+
+    main {
+        flex: 1;
+        padding: 1rem;
+    }
+
