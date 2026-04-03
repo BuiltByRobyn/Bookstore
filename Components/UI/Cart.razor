@@ -1,0 +1,68 @@
+@inject OrderState OrderState
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+
+<span role="button" class="position-relative fs-4 fw-bold" data-bs-toggle="offcanvas" data-bs-target="#cart">
+    <i class="bi bi-cart"></i>
+    @if (OrderItems.Any()){
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.8rem;">
+            @OrderItems.Sum(i => i.Quantity)
+        </span>
+    }
+</span>
+
+<div class="offcanvas offcanvas-end" id="cart" tabindex="-1">
+    <div class="offcanvas-header">
+        <h5> Your Order </h5>
+        <button class="btn-close text-reset" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body">
+        @if (OrderItems.Any())
+        {
+            @foreach (var item in OrderItems)
+            {
+                <CartItem
+                item="@item"
+                OnIncrement="() => Increment(item)"
+                OnDecrement="() => Decrement(item)"
+                OnRemove="() => Remove(item)" />
+            }
+
+        } else {
+            <p>There are no items in the cart. </p>
+        }
+    </div>
+
+    <button class="btn btn-warning d-block" data-bs-dismiss="offcanvas" @onclick="@(() => NavigationManager.NavigateTo("checkout"))">Proceed to checkout</button>
+</div>
+
+@code {
+    private List<OrderItem> OrderItems => OrderState.Order.OrderItems;
+
+    protected override void OnInitialized()
+    {
+        OrderState.OnChange += StateHasChanged;
+    }
+
+    public void Increment(OrderItem item)
+    {
+        if (item.Quantity < 5)
+        {
+            item.Quantity++;
+        }
+    }
+
+    public void Decrement(OrderItem item)
+    {
+        if (item.Quantity > 1)
+        {
+            item.Quantity--;
+        }
+    }
+
+    public void Remove(OrderItem item)
+    {
+        OrderState.RemoveItem(item);
+    }
+    
+}

@@ -1,0 +1,46 @@
+@page "/checkout"
+@using Microsoft.EntityFrameworkCore
+
+@implements IAsyncDisposable
+
+@inject OrderState OrderState
+@inject NavigationManager NavigationManager
+@inject IDbContextFactory<BookstoreDb> DbFactory
+@rendermode InteractiveServer
+
+<PageTitle>Bookstore - Checkout</PageTitle>
+
+<h1>Bookstore - Checkout</h1>
+
+@if (Order.OrderItems.Any())
+{
+    <dl>@foreach(var item in Order.OrderItems)
+        {
+            <dt>@item.Book.Title (@item.Quantity)</dt>
+            <dd>@item.GetTotal()</dd>
+        }
+    </dl>
+    <p>Total: $@Order.GetTotal()</p>
+    <button class="btn btn-warning" @onclick="PlaceOrder">Place Order</button>
+}
+
+@code {
+    private BookstoreDb context { get; set; }
+    private Order Order => OrderState.Order;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    private async Task PlaceOrder()
+    {
+        Order.OrderDate = DateTime.Now;
+        context.Orders.Attach(Order);
+        await context.SaveChangesAsync();
+
+        NavigationManager.NavigateTo("/");
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();  
+}

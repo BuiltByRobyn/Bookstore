@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using bookstore.Components;
 using bookstore.Data;
+using bookstore.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 
@@ -9,6 +10,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddQuickGridEntityFrameworkAdapter();
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+
+builder.Services.AddScoped<OrderState>();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
