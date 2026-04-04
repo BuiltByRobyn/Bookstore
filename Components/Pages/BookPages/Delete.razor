@@ -54,7 +54,7 @@
         </dl>
         <EditForm method="post" Model="book" OnValidSubmit="DeleteBook" FormName="delete" Enhance>
             <button type="submit" class="btn btn-danger" disabled="@(book is null)">Delete</button> |
-            <a href="/books">Back to List</a>
+            <a href="javascript:history.back()">Back to List</a>
         </EditForm>
     }
 </div>
