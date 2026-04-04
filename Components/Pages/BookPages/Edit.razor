@@ -119,7 +119,7 @@ else
             }
         }
 
-        NavigationManager.NavigateTo("/books");
+        NavigationManager.NavigateTo($"/books/details?id={Book!.Id}");
     }
 
     private bool BookExists(int id)

@@ -82,6 +82,6 @@
         using var context = DbFactory.CreateDbContext();
         context.Books.Add(Book);
         await context.SaveChangesAsync();
-        NavigationManager.NavigateTo("/books");
+        NavigationManager.NavigateTo("/");
     }
 }
