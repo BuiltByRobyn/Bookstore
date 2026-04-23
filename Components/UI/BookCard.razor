@@ -1,6 +1,9 @@
+@inject NavigationManager NavigationManager
+@using Microsoft.AspNetCore.WebUtilities
+
 <div class="card overflow-hidden text-white" style="width: 14rem; height: 20rem;">
     <img src ="@Book.CoverImageUrl" alt="@Book.Title" />
-    <a href= "/books/details?id=@Book.Id" class="stretched-link"></a>
+    <a href="@DetailsUrl" class="stretched-link"></a>
     <div class="card-img-overlay d-flex flex-column p-0">
         <div class="px-3 py-2 grow-1 bg-dark bg-opacity-50">
             <h5 class="card-title">@Book.Title</h5>
@@ -15,4 +18,24 @@
 
 @code {
     [Parameter] public Book Book { get; set; }
+
+    private string DetailsUrl => $"/books/details?id={Book.Id}&returnUrl={Uri.EscapeDataString(ResolveReturnUrl())}";
+
+    private string ResolveReturnUrl()
+    {
+        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+
+        if (uri.AbsolutePath.StartsWith("/books/details", StringComparison.OrdinalIgnoreCase))
+        {
+            var query = QueryHelpers.ParseQuery(uri.Query);
+            if (query.TryGetValue("returnUrl", out var existing) && !string.IsNullOrWhiteSpace(existing))
+            {
+                return existing.ToString();
+            }
+            return "/";
+        }
+
+        var relative = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        return string.IsNullOrEmpty(relative) ? "/" : "/" + relative;
+    }
 }

@@ -43,27 +43,52 @@
                     </dl>
                     <div>
                         <a href="@($"/books/edit?id={book.Id}")">Edit</a> |
-                        <a href="javascript:history.back()">Back to List</a>
+                        <a href="@BackUrl">Back to List</a>
                     </div>
                     <div class="mt-3">
                         <button class="btn btn-warning" @onclick="() => AddToCart(book)">Purchase</button>
                     </div>
-
                 </div>
+            </div>
+
+            <div class="mt-5">
+                @if (recommendations.Any())
+                {
+                    <h3>Customers who bought this item also bought</h3>
+                    <div class="hstack flex-wrap gap-3 mt-3">
+                        @foreach (var rec in recommendations)
+                        {
+                            <BookCard Book="@rec" />
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted fst-italic">No recommendations available for this title.</p>
+                }
             </div>
         }
     </div>
 </div>
 
-   
-
 @code {
     private Book book;
+    private List<Book> recommendations = new();
 
     [SupplyParameterFromQuery]
     private int Id { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    [SupplyParameterFromQuery(Name = "returnUrl")]
+    private string? ReturnUrl { get; set; }
+
+    private string BackUrl =>
+        !string.IsNullOrWhiteSpace(ReturnUrl)
+        && ReturnUrl.StartsWith("/")
+        && !ReturnUrl.StartsWith("//")
+            ? ReturnUrl
+            : "/";
+
+    protected override async Task OnParametersSetAsync()
     {
         using var context = DbFactory.CreateDbContext();
         book = await context.Books.FirstOrDefaultAsync(m => m.Id == Id);
@@ -71,11 +96,34 @@
         if (book is null)
         {
             NavigationManager.NotFound();
+            return;
         }
+
+        await LoadRecommendations();
     }
 
     private void AddToCart(Book book)
     {
         OrderState.AddItem(item: new OrderItem { Book = book, Quantity = 1 });
+    }
+
+    private async Task LoadRecommendations()
+    {
+        using var context = DbFactory.CreateDbContext();
+        var orders = await context.Orders
+            .Include(o => o.OrderItems).ThenInclude(oi => oi.Book)
+            .Where(o => o.OrderItems.Any(oi => oi.Book.Id == book.Id))
+            .AsSplitQuery()
+            .ToListAsync();
+
+        recommendations = orders
+            .SelectMany(o => o.OrderItems)
+            .Select(oi => oi.Book)
+            .Where(b => b.Id != book.Id)
+            .GroupBy(b => b.Id)
+            .OrderByDescending(g => g.Count())
+            .Select(g => g.First())
+            .Take(5)
+            .ToList();
     }
 }
